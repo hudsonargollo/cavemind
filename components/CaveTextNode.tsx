@@ -6,7 +6,14 @@ const CaveTextNode: React.FC<NodeProps<CaveTextData>> = ({ data, selected, id })
   const [text, setText] = useState(data.text || '');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Auto-resize height
+  // Sync internal state with props (Required for Undo/Redo)
+  useEffect(() => {
+    if (typeof data.text === 'string' && data.text !== text) {
+      setText(data.text);
+    }
+  }, [data.text]);
+
+  // Auto-resize height & update data
   useEffect(() => {
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
