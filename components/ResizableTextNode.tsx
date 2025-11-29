@@ -17,25 +17,20 @@ const ResizableTextNode: React.FC<NodeProps> = ({ data, selected }) => {
   const [height, setHeight] = useState(Math.max(MIN_HEIGHT, typedData.height || 100));
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const titleInputRef = useRef<HTMLInputElement>(null);
+  const isEditingRef = useRef(false);
 
-  // Initialize from data only once
+  // Update data reference without causing re-renders
   useEffect(() => {
-    if (typedData.text !== undefined && text === '') {
-      setText(typedData.text);
+    if (!isEditingRef.current) {
+      typedData.text = text;
+      typedData.title = title;
+      typedData.width = width;
+      typedData.height = height;
+      typedData.rotation = rotation;
+      typedData.minWidth = MIN_WIDTH;
+      typedData.minHeight = MIN_HEIGHT;
     }
-    if (typedData.title !== undefined && title === 'NOTA SEM TÍTULO') {
-      setTitle(typedData.title);
-    }
-  }, []); // Only run once on mount
-
-  // Update data reference (not causing re-render)
-  typedData.text = text;
-  typedData.title = title;
-  typedData.width = width;
-  typedData.height = height;
-  typedData.rotation = rotation;
-  typedData.minWidth = MIN_WIDTH;
-  typedData.minHeight = MIN_HEIGHT;
+  }, [text, title, width, height, rotation, typedData]);
 
   const handleResize = (
     e: MouseEvent | TouchEvent,
@@ -90,6 +85,7 @@ const ResizableTextNode: React.FC<NodeProps> = ({ data, selected }) => {
             size={{ width, height }}
             position={{ x: 0, y: 0 }}
             onResize={handleResize}
+            onResizeStop={handleResize}
             minWidth={MIN_WIDTH}
             minHeight={MIN_HEIGHT}
             disableDragging={true}
@@ -130,22 +126,32 @@ const ResizableTextNode: React.FC<NodeProps> = ({ data, selected }) => {
       )}
 
       <div className="bg-[#1A1A1A] px-3 py-1 border-b border-[#333] rounded-t-md flex items-center gap-2">
-        <div className="w-2 h-2 rounded-full bg-[#FF7A33]"></div>
+        <span className="text-[10px]">🔺</span>
         {isEditingTitle ? (
           <input
             ref={titleInputRef}
             type="text"
             value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            onBlur={() => setIsEditingTitle(false)}
+            onChange={(e) => {
+              isEditingRef.current = true;
+              setTitle(e.target.value);
+              setTimeout(() => { isEditingRef.current = false; }, 100);
+            }}
+            onBlur={() => {
+              isEditingRef.current = false;
+              setIsEditingTitle(false);
+            }}
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
+                isEditingRef.current = false;
                 setIsEditingTitle(false);
               } else if (e.key === 'Escape') {
                 setTitle(typedData.title || 'NOTA SEM TÍTULO');
+                isEditingRef.current = false;
                 setIsEditingTitle(false);
               }
             }}
+            onFocus={() => { isEditingRef.current = true; }}
             onPointerDown={(e) => e.stopPropagation()}
             className="text-[10px] uppercase tracking-widest text-gray-300 font-bold bg-[#0A0A0A] px-2 py-0.5 rounded outline-none focus:ring-1 focus:ring-[#FF3333] flex-1"
             maxLength={30}
@@ -197,9 +203,15 @@ const ResizableTextNode: React.FC<NodeProps> = ({ data, selected }) => {
           className="w-full h-full bg-transparent text-sm font-jersey focus:outline-none resize-none overflow-auto leading-relaxed"
           style={{ color: textColor }}
           value={text}
-          onChange={(e) => setText(e.target.value)}
+          onChange={(e) => {
+            isEditingRef.current = true;
+            setText(e.target.value);
+            setTimeout(() => { isEditingRef.current = false; }, 100);
+          }}
           placeholder="Enter resizable text..."
-          onPointerDown={(e) => e.stopPropagation()} // Prevent dragging node when clicking text
+          onPointerDown={(e) => e.stopPropagation()}
+          onFocus={() => { isEditingRef.current = true; }}
+          onBlur={() => { isEditingRef.current = false; }}
         />
       </div>
 
