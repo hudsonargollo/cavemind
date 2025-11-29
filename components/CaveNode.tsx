@@ -1,10 +1,14 @@
-import React, { memo } from 'react';
+import React, { memo, useState, useRef, useEffect } from 'react';
 import { Handle, Position, NodeProps } from '@xyflow/react';
 import { CaveNodeData } from '../types';
 import { NodeShape } from '../constants';
 
-const CaveNode: React.FC<NodeProps<CaveNodeData>> = ({ data, selected }) => {
+const CaveNode: React.FC<NodeProps<CaveNodeData>> = ({ data, selected, id }) => {
   const shape = data.shape || 'process';
+  const [isEditing, setIsEditing] = useState(false);
+  const [editValue, setEditValue] = useState(data.label);
+  const editRef = useRef<HTMLDivElement>(null);
+  const nodeRef = useRef<HTMLDivElement>(null);
 
   // Shape-specific styles
   const getShapeStyles = (s: NodeShape) => {
@@ -24,17 +28,97 @@ const CaveNode: React.FC<NodeProps<CaveNodeData>> = ({ data, selected }) => {
   // Undo rotation/skew for text content
   const contentStyle = shape === 'decision' ? { transform: 'rotate(-45deg)' } : shape === 'parallelogram' ? { transform: 'skew(20deg)' } : {};
 
+  // Handle double-click to activate editing
+  const handleDoubleClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsEditing(true);
+    setEditValue(data.label);
+  };
+
+  // Save changes
+  const saveChanges = () => {
+    if (editValue.trim() !== '') {
+      // Update the node data through React Flow's node update mechanism
+      const event = new CustomEvent('updateNodeLabel', {
+        detail: { nodeId: id, label: editValue }
+      });
+      window.dispatchEvent(event);
+    }
+    setIsEditing(false);
+  };
+
+  // Cancel changes
+  const cancelChanges = () => {
+    setEditValue(data.label);
+    setIsEditing(false);
+  };
+
+  // Handle keyboard events
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      saveChanges();
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      cancelChanges();
+    }
+  };
+
+  // Handle click outside
+  useEffect(() => {
+    if (!isEditing) return;
+
+    const handleClickOutside = (e: MouseEvent) => {
+      if (nodeRef.current && !nodeRef.current.contains(e.target as Node)) {
+        saveChanges();
+      }
+    };
+
+    // Add a small delay to prevent immediate triggering
+    const timeoutId = setTimeout(() => {
+      document.addEventListener('mousedown', handleClickOutside);
+    }, 100);
+
+    return () => {
+      clearTimeout(timeoutId);
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isEditing, editValue]);
+
+  // Focus the editable div when entering edit mode
+  useEffect(() => {
+    if (isEditing && editRef.current) {
+      editRef.current.focus();
+      // Select all text
+      const range = document.createRange();
+      range.selectNodeContents(editRef.current);
+      const selection = window.getSelection();
+      selection?.removeAllRanges();
+      selection?.addRange(range);
+    }
+  }, [isEditing]);
+
+  // Get colors from data
+  const backgroundColor = (data as any).backgroundColor || '#0A0A0A';
+  const strokeColor = (data as any).strokeColor || '#333';
+  const textColor = (data as any).textColor || '#E5E5E5';
+
   return (
-    <div className="relative group">
+    <div className="relative group" ref={nodeRef}>
       <div
         className={`
           shadow-lg text-center transition-all duration-300
           ${selected 
-            ? 'border-2 border-[#FF3333] shadow-[0_0_15px_rgba(255,51,51,0.3)] bg-[#0A0A0A]' 
-            : 'border border-[#333] bg-[#0A0A0A] hover:border-[#555]'
+            ? 'border-2 border-[#FF3333] shadow-[0_0_15px_rgba(255,51,51,0.3)]' 
+            : 'border hover:border-[#555]'
           }
           ${getShapeStyles(shape)}
         `}
+        style={{
+          backgroundColor,
+          borderColor: selected ? '#FF3333' : strokeColor,
+        }}
+        onDoubleClick={handleDoubleClick}
       >
         {/* Handles */}
         <Handle
@@ -45,10 +129,26 @@ const CaveNode: React.FC<NodeProps<CaveNodeData>> = ({ data, selected }) => {
         />
 
         <div className="flex flex-col gap-1 items-center justify-center w-full h-full" style={contentStyle}>
-          <div className="text-[#E5E5E5] font-medium text-sm font-sans tracking-wide leading-tight">
-            {data.label}
-          </div>
-          {data.details && (
+          {isEditing ? (
+            <div
+              ref={editRef}
+              contentEditable
+              suppressContentEditableWarning
+              onKeyDown={handleKeyDown}
+              onInput={(e) => setEditValue(e.currentTarget.textContent || '')}
+              onPointerDown={(e) => e.stopPropagation()}
+              onMouseDown={(e) => e.stopPropagation()}
+              className="text-sm font-jersey tracking-wide leading-tight outline-none bg-[#1A1A1A] px-2 py-1 rounded min-w-[80px] text-center"
+              style={{ color: textColor }}
+            >
+              {editValue}
+            </div>
+          ) : (
+            <div className="text-sm font-jersey tracking-wide leading-tight" style={{ color: textColor }}>
+              {data.label}
+            </div>
+          )}
+          {!isEditing && data.details && (
             <div className="text-[10px] text-gray-500 mt-0.5 max-w-[140px] leading-tight">
               {data.details}
             </div>

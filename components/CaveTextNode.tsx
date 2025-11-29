@@ -48,7 +48,7 @@ const CaveTextNode: React.FC<NodeProps<CaveTextData>> = ({ data, selected, id })
       <div className="p-3">
         <textarea
             ref={textareaRef}
-            className="w-full bg-transparent text-[#E5E5E5] text-sm font-mono focus:outline-none resize-none overflow-hidden leading-relaxed"
+            className="w-full bg-transparent text-[#E5E5E5] text-sm font-jersey focus:outline-none resize-none overflow-hidden leading-relaxed"
             value={text}
             onChange={(e) => setText(e.target.value)}
             placeholder="Enter intelligence data..."

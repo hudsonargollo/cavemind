@@ -5,6 +5,7 @@ interface ContextMenuProps {
   x: number;
   y: number;
   type: 'canvas' | 'node';
+  nodeType?: string;
   onClose: () => void;
   // Canvas Actions
   onAddNode?: (type: 'caveNode' | 'caveText' | 'caveImage' | 'caveSticker', payload?: any) => void;
@@ -18,7 +19,8 @@ interface ContextMenuProps {
 const ContextMenu: React.FC<ContextMenuProps> = ({ 
   x, 
   y, 
-  type, 
+  type,
+  nodeType,
   onClose, 
   onAddNode, 
   onPaste,
@@ -122,14 +124,19 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
            <span>🗑️</span> Delete
        </button>
        
-       <div className="h-[1px] bg-[#333] my-1" />
-       <div className="px-3 py-1.5 text-[10px] text-gray-500 font-bold uppercase tracking-wider">Change Shape</div>
-       <div className="grid grid-cols-4 gap-1 p-1">
-          <button onClick={() => onChangeShape?.('process')} className="hover:bg-[#333] p-1 rounded border border-[#333]" title="Process"><div className="w-4 h-3 border border-gray-400 rounded-[2px] mx-auto" /></button>
-          <button onClick={() => onChangeShape?.('decision')} className="hover:bg-[#333] p-1 rounded border border-[#333]" title="Decision"><div className="w-3 h-3 border border-gray-400 rotate-45 mx-auto" /></button>
-          <button onClick={() => onChangeShape?.('circle')} className="hover:bg-[#333] p-1 rounded border border-[#333]" title="Circle"><div className="w-3 h-3 border border-gray-400 rounded-full mx-auto" /></button>
-          <button onClick={() => onChangeShape?.('parallelogram')} className="hover:bg-[#333] p-1 rounded border border-[#333]" title="Data"><div className="w-4 h-3 border border-gray-400 -skew-x-[20deg] mx-auto" /></button>
-       </div>
+       {/* Only show Change Shape for flowchart nodes (caveNode) */}
+       {nodeType === 'caveNode' && (
+         <>
+           <div className="h-[1px] bg-[#333] my-1" />
+           <div className="px-3 py-1.5 text-[10px] text-gray-500 font-bold uppercase tracking-wider">Change Shape</div>
+           <div className="grid grid-cols-4 gap-1 p-1">
+              <button onClick={() => onChangeShape?.('process')} className="hover:bg-[#333] p-1 rounded border border-[#333]" title="Process"><div className="w-4 h-3 border border-gray-400 rounded-[2px] mx-auto" /></button>
+              <button onClick={() => onChangeShape?.('decision')} className="hover:bg-[#333] p-1 rounded border border-[#333]" title="Decision"><div className="w-3 h-3 border border-gray-400 rotate-45 mx-auto" /></button>
+              <button onClick={() => onChangeShape?.('circle')} className="hover:bg-[#333] p-1 rounded border border-[#333]" title="Circle"><div className="w-3 h-3 border border-gray-400 rounded-full mx-auto" /></button>
+              <button onClick={() => onChangeShape?.('parallelogram')} className="hover:bg-[#333] p-1 rounded border border-[#333]" title="Data"><div className="w-4 h-3 border border-gray-400 -skew-x-[20deg] mx-auto" /></button>
+           </div>
+         </>
+       )}
     </div>
   );
 };

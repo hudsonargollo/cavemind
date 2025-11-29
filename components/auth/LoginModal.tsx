@@ -21,7 +21,7 @@ const LoginModal: React.FC<Props> = ({ isOpen, onClose, onLogin }) => {
 
         <div className="text-center mb-8">
           <h2 className="text-3xl font-jersey text-white mb-2">ENTER THE <span className="text-[#FF3333]">CAVE</span></h2>
-          <p className="text-gray-400 text-sm font-sans">Sign in to save your workflows and access AI features.</p>
+          <p className="text-gray-400 text-sm font-jersey">Sign in to save your workflows and access AI features.</p>
         </div>
 
         <div className="space-y-4">
