@@ -17,20 +17,21 @@ const ResizableTextNode: React.FC<NodeProps> = ({ data, selected }) => {
   const [height, setHeight] = useState(Math.max(MIN_HEIGHT, typedData.height || 100));
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const titleInputRef = useRef<HTMLInputElement>(null);
-  const isEditingRef = useRef(false);
+  // Update data only when needed (not during typing)
+  const updateData = () => {
+    typedData.text = text;
+    typedData.title = title;
+    typedData.width = width;
+    typedData.height = height;
+    typedData.rotation = rotation;
+    typedData.minWidth = MIN_WIDTH;
+    typedData.minHeight = MIN_HEIGHT;
+  };
 
-  // Update data reference without causing re-renders
+  // Update data when dimensions or rotation change
   useEffect(() => {
-    if (!isEditingRef.current) {
-      typedData.text = text;
-      typedData.title = title;
-      typedData.width = width;
-      typedData.height = height;
-      typedData.rotation = rotation;
-      typedData.minWidth = MIN_WIDTH;
-      typedData.minHeight = MIN_HEIGHT;
-    }
-  }, [text, title, width, height, rotation, typedData]);
+    updateData();
+  }, [width, height, rotation]);
 
   const handleResize = (
     e: MouseEvent | TouchEvent,
@@ -132,26 +133,20 @@ const ResizableTextNode: React.FC<NodeProps> = ({ data, selected }) => {
             ref={titleInputRef}
             type="text"
             value={title}
-            onChange={(e) => {
-              isEditingRef.current = true;
-              setTitle(e.target.value);
-              setTimeout(() => { isEditingRef.current = false; }, 100);
-            }}
+            onChange={(e) => setTitle(e.target.value)}
             onBlur={() => {
-              isEditingRef.current = false;
+              updateData();
               setIsEditingTitle(false);
             }}
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
-                isEditingRef.current = false;
+                updateData();
                 setIsEditingTitle(false);
               } else if (e.key === 'Escape') {
                 setTitle(typedData.title || 'NOTA SEM TÍTULO');
-                isEditingRef.current = false;
                 setIsEditingTitle(false);
               }
             }}
-            onFocus={() => { isEditingRef.current = true; }}
             onPointerDown={(e) => e.stopPropagation()}
             className="text-[10px] uppercase tracking-widest text-gray-300 font-bold bg-[#0A0A0A] px-2 py-0.5 rounded outline-none focus:ring-1 focus:ring-[#FF3333] flex-1"
             maxLength={30}
@@ -203,15 +198,10 @@ const ResizableTextNode: React.FC<NodeProps> = ({ data, selected }) => {
           className="w-full h-full bg-transparent text-sm font-jersey focus:outline-none resize-none overflow-auto leading-relaxed"
           style={{ color: textColor }}
           value={text}
-          onChange={(e) => {
-            isEditingRef.current = true;
-            setText(e.target.value);
-            setTimeout(() => { isEditingRef.current = false; }, 100);
-          }}
+          onChange={(e) => setText(e.target.value)}
           placeholder="Enter resizable text..."
           onPointerDown={(e) => e.stopPropagation()}
-          onFocus={() => { isEditingRef.current = true; }}
-          onBlur={() => { isEditingRef.current = false; }}
+          onBlur={() => updateData()}
         />
       </div>
 
