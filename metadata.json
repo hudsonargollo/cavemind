@@ -1,0 +1,5 @@
+{
+  "name": "CaveMind",
+  "description": "A high-performance collaborative whiteboard application for the 'Modo Caverna' ecosystem, powered by Google Gemini and React Flow.",
+  "requestFramePermissions": []
+}
