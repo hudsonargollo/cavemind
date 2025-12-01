@@ -88,13 +88,7 @@ const CavePostItNodeComponent: React.FC<NodeProps> = ({ data, selected, id }) =>
     };
   }, [isEditing]);
 
-  // Focus the textarea when entering edit mode
-  useEffect(() => {
-    if (isEditing && editRef.current) {
-      editRef.current.focus();
-      editRef.current.select();
-    }
-  }, [isEditing]);
+
 
   const handleResize = (
     _e: MouseEvent | TouchEvent,
@@ -196,8 +190,15 @@ const CavePostItNodeComponent: React.FC<NodeProps> = ({ data, selected, id }) =>
         <div className="w-full h-full flex items-start justify-start">
           {isEditing ? (
             <textarea
-              ref={editRef}
-              defaultValue={typedData.text}
+              ref={(el) => {
+                editRef.current = el;
+                if (el && !el.dataset.initialized) {
+                  el.value = typedData.text;
+                  el.dataset.initialized = 'true';
+                  el.focus();
+                  el.select();
+                }
+              }}
               onKeyDown={handleKeyDown}
               onBlur={saveChanges}
               onPointerDown={(e) => e.stopPropagation()}

@@ -88,14 +88,7 @@ const CaveNodeComponent: React.FC<NodeProps<CaveNodeData>> = ({ data, selected, 
     };
   }, [isEditing]);
 
-  // Focus the input when entering edit mode
-  useEffect(() => {
-    if (isEditing && editRef.current) {
-      const input = editRef.current as HTMLInputElement;
-      input.focus();
-      input.select();
-    }
-  }, [isEditing]);
+
 
   // Get colors from data
   const backgroundColor = (data as any).backgroundColor || '#0A0A0A';
@@ -130,9 +123,16 @@ const CaveNodeComponent: React.FC<NodeProps<CaveNodeData>> = ({ data, selected, 
         <div className="flex flex-col gap-1 items-center justify-center w-full h-full" style={contentStyle}>
           {isEditing ? (
             <input
-              ref={editRef}
+              ref={(el) => {
+                editRef.current = el;
+                if (el && !el.dataset.initialized) {
+                  el.value = data.label;
+                  el.dataset.initialized = 'true';
+                  el.focus();
+                  el.select();
+                }
+              }}
               type="text"
-              defaultValue={data.label}
               onKeyDown={handleKeyDown}
               onBlur={saveChanges}
               onPointerDown={(e) => e.stopPropagation()}

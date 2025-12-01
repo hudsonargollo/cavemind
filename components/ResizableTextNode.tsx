@@ -199,21 +199,19 @@ const ResizableTextNodeComponent: React.FC<NodeProps> = ({ data, selected, id })
 
       <div className="p-3 overflow-hidden" style={{ height: `calc(100% - 32px)` }}>
         <textarea
-          key={id}
-          ref={textareaRef}
-          defaultValue={typedData.text || ''}
+          ref={(el) => {
+            textareaRef.current = el;
+            // Only set initial value once when element is created
+            if (el && !el.dataset.initialized) {
+              el.value = typedData.text || '';
+              el.dataset.initialized = 'true';
+            }
+          }}
           className="w-full h-full bg-transparent text-sm font-jersey focus:outline-none resize-none overflow-auto leading-relaxed"
           style={{ color: textColor }}
           placeholder={t('node.placeholder')}
           onPointerDown={(e) => e.stopPropagation()}
-          onFocus={() => {
-            isEditingTextRef.current = true;
-          }}
-          onChange={() => {
-            // Keep it uncontrolled - just let the DOM handle it
-          }}
           onBlur={(e) => {
-            isEditingTextRef.current = false;
             const event = new CustomEvent('updateResizableText', {
               detail: { nodeId: id, text: e.target.value, title: currentTitle }
             });
