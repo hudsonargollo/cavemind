@@ -15,6 +15,7 @@ const ResizableTextNode: React.FC<NodeProps> = ({ data, selected, id }) => {
   const [height, setHeight] = useState(Math.max(MIN_HEIGHT, typedData.height || 100));
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const titleInputRef = useRef<HTMLInputElement>(null);
+  const isEditingRef = useRef(false);
   
   // Update dimensions in data directly (no re-render needed)
   useEffect(() => {
@@ -22,6 +23,13 @@ const ResizableTextNode: React.FC<NodeProps> = ({ data, selected, id }) => {
     typedData.height = height;
     typedData.rotation = rotation;
   }, [width, height, rotation, typedData]);
+  
+  // Only update textarea from props when not actively editing
+  useEffect(() => {
+    if (textareaRef.current && !isEditingRef.current && typedData.text !== textareaRef.current.value) {
+      textareaRef.current.value = typedData.text || '';
+    }
+  }, [typedData.text]);
 
   const handleResize = (
     _e: MouseEvent | TouchEvent,
@@ -197,10 +205,14 @@ const ResizableTextNode: React.FC<NodeProps> = ({ data, selected, id }) => {
           style={{ color: textColor }}
           placeholder="Enter resizable text..."
           onPointerDown={(e) => e.stopPropagation()}
+          onFocus={() => {
+            isEditingRef.current = true;
+          }}
           onChange={() => {
             // Keep it uncontrolled - just let the DOM handle it
           }}
           onBlur={(e) => {
+            isEditingRef.current = false;
             const event = new CustomEvent('updateResizableText', {
               detail: { nodeId: id, text: e.target.value, title }
             });
