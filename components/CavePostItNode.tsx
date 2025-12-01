@@ -1,13 +1,24 @@
 import React, { memo, useState, useRef, useEffect } from 'react';
 import { Handle, Position, NodeProps } from '@xyflow/react';
+import { Rnd } from 'react-rnd';
 import type { PostItNodeData } from '../types';
+
+const MIN_WIDTH = 150;
+const MIN_HEIGHT = 150;
 
 const CavePostItNode: React.FC<NodeProps> = ({ data, selected, id }) => {
   const typedData = data as PostItNodeData;
   const [isEditing, setIsEditing] = useState(false);
-  const [editValue, setEditValue] = useState(typedData.text);
+  const [width, setWidth] = useState(Math.max(MIN_WIDTH, typedData.width || 200));
+  const [height, setHeight] = useState(Math.max(MIN_HEIGHT, typedData.height || 200));
   const editRef = useRef<HTMLTextAreaElement>(null);
   const nodeRef = useRef<HTMLDivElement>(null);
+  
+  // Update dimensions in data directly
+  useEffect(() => {
+    typedData.width = width;
+    typedData.height = height;
+  }, [width, height, typedData]);
 
   // Get color gradient based on post-it color
   const getColorGradient = (color: PostItNodeData['color']) => {
@@ -25,22 +36,25 @@ const CavePostItNode: React.FC<NodeProps> = ({ data, selected, id }) => {
   const handleDoubleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     setIsEditing(true);
-    setEditValue(typedData.text);
   };
 
   // Save changes
   const saveChanges = () => {
-    // Update the node data through React Flow's node update mechanism
-    const event = new CustomEvent('updatePostItText', {
-      detail: { nodeId: id, text: editValue }
-    });
-    window.dispatchEvent(event);
+    const newText = editRef.current?.value || typedData.text;
+    if (newText !== typedData.text) {
+      const event = new CustomEvent('updatePostItText', {
+        detail: { nodeId: id, text: newText }
+      });
+      window.dispatchEvent(event);
+    }
     setIsEditing(false);
   };
 
   // Cancel changes
   const cancelChanges = () => {
-    setEditValue(typedData.text);
+    if (editRef.current) {
+      editRef.current.value = typedData.text;
+    }
     setIsEditing(false);
   };
 
@@ -72,7 +86,7 @@ const CavePostItNode: React.FC<NodeProps> = ({ data, selected, id }) => {
       clearTimeout(timeoutId);
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isEditing, editValue]);
+  }, [isEditing]);
 
   // Focus the textarea when entering edit mode
   useEffect(() => {
@@ -82,10 +96,21 @@ const CavePostItNode: React.FC<NodeProps> = ({ data, selected, id }) => {
     }
   }, [isEditing]);
 
+  const handleResize = (
+    _e: MouseEvent | TouchEvent,
+    _direction: string,
+    ref: HTMLElement,
+    _delta: { width: number; height: number },
+    _position: { x: number; y: number }
+  ) => {
+    const newWidth = Math.max(MIN_WIDTH, ref.offsetWidth);
+    const newHeight = Math.max(MIN_HEIGHT, ref.offsetHeight);
+    setWidth(newWidth);
+    setHeight(newHeight);
+  };
+
   const rotation = typedData.rotation || 0;
   const hasShadow = typedData.hasShadow !== false; // Default to true
-  const width = typedData.width || 200;
-  const height = typedData.height || 200;
 
   return (
     <div className="relative group" ref={nodeRef}>
@@ -108,6 +133,55 @@ const CavePostItNode: React.FC<NodeProps> = ({ data, selected, id }) => {
         }}
         onDoubleClick={handleDoubleClick}
       >
+        {/* Resize handles - only visible when selected */}
+        {selected && (
+          <div 
+            className="absolute inset-0 pointer-events-none"
+            style={{ zIndex: 10 }}
+          >
+            <Rnd
+              size={{ width, height }}
+              position={{ x: 0, y: 0 }}
+              onResize={handleResize}
+              onResizeStop={handleResize}
+              minWidth={MIN_WIDTH}
+              minHeight={MIN_HEIGHT}
+              disableDragging={true}
+              enableResizing={{
+                top: true,
+                right: true,
+                bottom: true,
+                left: true,
+                topRight: true,
+                bottomRight: true,
+                bottomLeft: true,
+                topLeft: true,
+              }}
+              resizeHandleStyles={{
+                top: { cursor: 'ns-resize', height: '8px', top: '-4px', pointerEvents: 'auto' },
+                right: { cursor: 'ew-resize', width: '8px', right: '-4px', pointerEvents: 'auto' },
+                bottom: { cursor: 'ns-resize', height: '8px', bottom: '-4px', pointerEvents: 'auto' },
+                left: { cursor: 'ew-resize', width: '8px', left: '-4px', pointerEvents: 'auto' },
+                topRight: { cursor: 'nesw-resize', width: '8px', height: '8px', top: '-4px', right: '-4px', pointerEvents: 'auto' },
+                bottomRight: { cursor: 'nwse-resize', width: '8px', height: '8px', bottom: '-4px', right: '-4px', pointerEvents: 'auto' },
+                bottomLeft: { cursor: 'nesw-resize', width: '8px', height: '8px', bottom: '-4px', left: '-4px', pointerEvents: 'auto' },
+                topLeft: { cursor: 'nwse-resize', width: '8px', height: '8px', top: '-4px', left: '-4px', pointerEvents: 'auto' },
+              }}
+              resizeHandleClasses={{
+                top: 'bg-[#FF3333] opacity-0 hover:opacity-100 transition-opacity',
+                right: 'bg-[#FF3333] opacity-0 hover:opacity-100 transition-opacity',
+                bottom: 'bg-[#FF3333] opacity-0 hover:opacity-100 transition-opacity',
+                left: 'bg-[#FF3333] opacity-0 hover:opacity-100 transition-opacity',
+                topRight: 'bg-[#FF3333] rounded-full opacity-0 hover:opacity-100 transition-opacity',
+                bottomRight: 'bg-[#FF3333] rounded-full opacity-0 hover:opacity-100 transition-opacity',
+                bottomLeft: 'bg-[#FF3333] rounded-full opacity-0 hover:opacity-100 transition-opacity',
+                topLeft: 'bg-[#FF3333] rounded-full opacity-0 hover:opacity-100 transition-opacity',
+              }}
+            >
+              <div style={{ width: '100%', height: '100%', pointerEvents: 'none' }} />
+            </Rnd>
+          </div>
+        )}
         {/* Post-it top fold effect */}
         <div
           className="absolute top-0 right-0 w-0 h-0"
@@ -123,9 +197,9 @@ const CavePostItNode: React.FC<NodeProps> = ({ data, selected, id }) => {
           {isEditing ? (
             <textarea
               ref={editRef}
-              value={editValue}
-              onChange={(e) => setEditValue(e.target.value)}
+              defaultValue={typedData.text}
               onKeyDown={handleKeyDown}
+              onBlur={saveChanges}
               onPointerDown={(e) => e.stopPropagation()}
               onMouseDown={(e) => e.stopPropagation()}
               className="w-full h-full bg-transparent text-gray-800 text-sm font-handwriting resize-none outline-none"
