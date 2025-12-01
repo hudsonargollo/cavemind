@@ -30,6 +30,9 @@ const CaveNodeComponent: React.FC<NodeProps<CaveNodeData>> = ({ data, selected, 
   // Handle double-click to activate editing
   const handleDoubleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
+    if (editRef.current) {
+      editRef.current.value = data.label;
+    }
     setIsEditing(true);
   };
 
@@ -168,5 +171,13 @@ const CaveNodeComponent: React.FC<NodeProps<CaveNodeData>> = ({ data, selected, 
   );
 };
 
-// Use default memo - data mutation prevents unnecessary re-renders
-export default memo(CaveNodeComponent);
+// Memo with shallow comparison - ReactFlow updates are handled properly
+export default memo(CaveNodeComponent, (prev, next) => {
+  // Only re-render if these specific props change
+  return (
+    prev.id === next.id &&
+    prev.selected === next.selected &&
+    prev.data.label === next.data.label &&
+    prev.data.shape === next.data.shape
+  );
+});

@@ -188,38 +188,40 @@ function Flow() {
       const customEvent = e as CustomEvent<{ nodeId: string; label: string }>;
       const { nodeId, label } = customEvent.detail;
       
-      // Don't update state during editing - just save to localStorage
-      const node = nodes.find(n => n.id === nodeId);
-      if (node) {
-        node.data.label = label;
-        // Trigger localStorage save without re-render
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ nodes, edges }));
-      }
+      // Use ReactFlow's proper update pattern - only update the specific node's data
+      setNodes((nds) =>
+        nds.map((node) =>
+          node.id === nodeId
+            ? { ...node, data: { ...node.data, label } }
+            : node
+        )
+      );
     };
 
     const handleUpdatePostItText = (e: Event) => {
       const customEvent = e as CustomEvent<{ nodeId: string; text: string }>;
       const { nodeId, text } = customEvent.detail;
       
-      // Don't update state - just save to localStorage
-      const node = nodes.find(n => n.id === nodeId);
-      if (node) {
-        node.data.text = text;
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ nodes, edges }));
-      }
+      setNodes((nds) =>
+        nds.map((node) =>
+          node.id === nodeId
+            ? { ...node, data: { ...node.data, text } }
+            : node
+        )
+      );
     };
 
     const handleUpdateResizableText = (e: Event) => {
       const customEvent = e as CustomEvent<{ nodeId: string; text: string; title: string }>;
       const { nodeId, text, title } = customEvent.detail;
       
-      // Don't update state - just save to localStorage
-      const node = nodes.find(n => n.id === nodeId);
-      if (node) {
-        node.data.text = text;
-        node.data.title = title;
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ nodes, edges }));
-      }
+      setNodes((nds) =>
+        nds.map((node) =>
+          node.id === nodeId
+            ? { ...node, data: { ...node.data, text, title } }
+            : node
+        )
+      );
     };
 
     window.addEventListener('updateNodeLabel', handleUpdateNodeLabel);

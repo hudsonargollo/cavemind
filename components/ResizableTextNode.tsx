@@ -231,6 +231,26 @@ const ResizableTextNodeComponent: React.FC<NodeProps> = ({ data, selected, id })
   );
 };
 
-// Use default memo - since we mutate data directly, re-renders only happen on prop changes
-// This allows language context changes to trigger re-renders
-export default memo(ResizableTextNodeComponent);
+// Smart memo - only re-render when necessary
+export default memo(ResizableTextNodeComponent, (prev, next) => {
+  const prevData = prev.data as ResizableTextNodeData;
+  const nextData = next.data as ResizableTextNodeData;
+  
+  // Always re-render if selection changes
+  if (prev.selected !== next.selected) return false;
+  
+  // Always re-render if id changes
+  if (prev.id !== next.id) return false;
+  
+  // Re-render if title changes (but not text - text is handled by uncontrolled input)
+  if (prevData.title !== nextData.title) return false;
+  
+  // Re-render if dimensions change
+  if (prevData.width !== nextData.width || prevData.height !== nextData.height) return false;
+  
+  // Re-render if rotation changes
+  if (prevData.rotation !== nextData.rotation) return false;
+  
+  // Don't re-render for text changes (uncontrolled input handles it)
+  return true;
+});

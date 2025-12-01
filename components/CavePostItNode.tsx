@@ -258,5 +258,17 @@ const CavePostItNodeComponent: React.FC<NodeProps> = ({ data, selected, id }) =>
   );
 };
 
-// Use default memo - data mutation prevents unnecessary re-renders
-export default memo(CavePostItNodeComponent);
+// Smart memo - prevent re-renders during text editing
+export default memo(CavePostItNodeComponent, (prev, next) => {
+  const prevData = prev.data as any;
+  const nextData = next.data as any;
+  
+  if (prev.selected !== next.selected) return false;
+  if (prev.id !== next.id) return false;
+  if (prevData.color !== nextData.color) return false;
+  if (prevData.width !== nextData.width || prevData.height !== nextData.height) return false;
+  if (prevData.rotation !== nextData.rotation) return false;
+  
+  // Don't re-render for text changes
+  return true;
+});
