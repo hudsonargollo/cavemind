@@ -231,16 +231,6 @@ const ResizableTextNodeComponent: React.FC<NodeProps> = ({ data, selected, id })
   );
 };
 
-// Custom comparison function to prevent re-renders during editing
-const ResizableTextNode = memo(ResizableTextNodeComponent, (prevProps, nextProps) => {
-  // Always re-render if selection state changes
-  if (prevProps.selected !== nextProps.selected) return false;
-  
-  // Always re-render if id changes
-  if (prevProps.id !== nextProps.id) return false;
-  
-  // Don't re-render if data changes (we handle updates manually)
-  return true;
-});
-
-export default ResizableTextNode;
+// Use default memo - since we mutate data directly, re-renders only happen on prop changes
+// This allows language context changes to trigger re-renders
+export default memo(ResizableTextNodeComponent);

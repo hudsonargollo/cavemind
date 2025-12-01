@@ -168,11 +168,5 @@ const CaveNodeComponent: React.FC<NodeProps<CaveNodeData>> = ({ data, selected, 
   );
 };
 
-// Custom comparison to prevent re-renders during editing
-const CaveNode = memo(CaveNodeComponent, (prevProps, nextProps) => {
-  if (prevProps.selected !== nextProps.selected) return false;
-  if (prevProps.id !== nextProps.id) return false;
-  return true;
-});
-
-export default CaveNode;
+// Use default memo - data mutation prevents unnecessary re-renders
+export default memo(CaveNodeComponent);

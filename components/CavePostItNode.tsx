@@ -258,11 +258,5 @@ const CavePostItNodeComponent: React.FC<NodeProps> = ({ data, selected, id }) =>
   );
 };
 
-// Custom comparison to prevent re-renders during editing
-const CavePostItNode = memo(CavePostItNodeComponent, (prevProps, nextProps) => {
-  if (prevProps.selected !== nextProps.selected) return false;
-  if (prevProps.id !== nextProps.id) return false;
-  return true;
-});
-
-export default CavePostItNode;
+// Use default memo - data mutation prevents unnecessary re-renders
+export default memo(CavePostItNodeComponent);
