@@ -3,7 +3,7 @@ import { Handle, Position, NodeProps } from '@xyflow/react';
 import { CaveNodeData } from '../types';
 import { NodeShape } from '../constants';
 
-const CaveNode: React.FC<NodeProps<CaveNodeData>> = ({ data, selected, id }) => {
+const CaveNodeComponent: React.FC<NodeProps<CaveNodeData>> = ({ data, selected, id }) => {
   const shape = data.shape || 'process';
   const [isEditing, setIsEditing] = useState(false);
   const editRef = useRef<HTMLInputElement>(null);
@@ -168,4 +168,11 @@ const CaveNode: React.FC<NodeProps<CaveNodeData>> = ({ data, selected, id }) => 
   );
 };
 
-export default memo(CaveNode);
+// Custom comparison to prevent re-renders during editing
+const CaveNode = memo(CaveNodeComponent, (prevProps, nextProps) => {
+  if (prevProps.selected !== nextProps.selected) return false;
+  if (prevProps.id !== nextProps.id) return false;
+  return true;
+});
+
+export default CaveNode;

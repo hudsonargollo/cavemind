@@ -7,7 +7,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 const MIN_WIDTH = 50;
 const MIN_HEIGHT = 30;
 
-const ResizableTextNode: React.FC<NodeProps> = ({ data, selected, id }) => {
+const ResizableTextNodeComponent: React.FC<NodeProps> = ({ data, selected, id }) => {
   const typedData = data as ResizableTextNodeData;
   const { t } = useLanguage();
   const defaultTitle = t('node.untitled');
@@ -17,7 +17,8 @@ const ResizableTextNode: React.FC<NodeProps> = ({ data, selected, id }) => {
   const [height, setHeight] = useState(Math.max(MIN_HEIGHT, typedData.height || 100));
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const titleInputRef = useRef<HTMLInputElement>(null);
-  const isEditingRef = useRef(false);
+  const isEditingTextRef = useRef(false);
+  const isEditingTitleRef = useRef(false);
   
   const currentTitle = typedData.title || defaultTitle;
   
@@ -206,13 +207,13 @@ const ResizableTextNode: React.FC<NodeProps> = ({ data, selected, id }) => {
           placeholder={t('node.placeholder')}
           onPointerDown={(e) => e.stopPropagation()}
           onFocus={() => {
-            isEditingRef.current = true;
+            isEditingTextRef.current = true;
           }}
           onChange={() => {
             // Keep it uncontrolled - just let the DOM handle it
           }}
           onBlur={(e) => {
-            isEditingRef.current = false;
+            isEditingTextRef.current = false;
             const event = new CustomEvent('updateResizableText', {
               detail: { nodeId: id, text: e.target.value, title: currentTitle }
             });
@@ -230,4 +231,16 @@ const ResizableTextNode: React.FC<NodeProps> = ({ data, selected, id }) => {
   );
 };
 
-export default memo(ResizableTextNode);
+// Custom comparison function to prevent re-renders during editing
+const ResizableTextNode = memo(ResizableTextNodeComponent, (prevProps, nextProps) => {
+  // Always re-render if selection state changes
+  if (prevProps.selected !== nextProps.selected) return false;
+  
+  // Always re-render if id changes
+  if (prevProps.id !== nextProps.id) return false;
+  
+  // Don't re-render if data changes (we handle updates manually)
+  return true;
+});
+
+export default ResizableTextNode;

@@ -6,7 +6,7 @@ import type { PostItNodeData } from '../types';
 const MIN_WIDTH = 150;
 const MIN_HEIGHT = 150;
 
-const CavePostItNode: React.FC<NodeProps> = ({ data, selected, id }) => {
+const CavePostItNodeComponent: React.FC<NodeProps> = ({ data, selected, id }) => {
   const typedData = data as PostItNodeData;
   const [isEditing, setIsEditing] = useState(false);
   const [width, setWidth] = useState(Math.max(MIN_WIDTH, typedData.width || 200));
@@ -258,4 +258,11 @@ const CavePostItNode: React.FC<NodeProps> = ({ data, selected, id }) => {
   );
 };
 
-export default memo(CavePostItNode);
+// Custom comparison to prevent re-renders during editing
+const CavePostItNode = memo(CavePostItNodeComponent, (prevProps, nextProps) => {
+  if (prevProps.selected !== nextProps.selected) return false;
+  if (prevProps.id !== nextProps.id) return false;
+  return true;
+});
+
+export default CavePostItNode;
