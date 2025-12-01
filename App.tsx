@@ -188,43 +188,38 @@ function Flow() {
       const customEvent = e as CustomEvent<{ nodeId: string; label: string }>;
       const { nodeId, label } = customEvent.detail;
       
-      // Directly mutate the data object (no new array = no re-render of unchanged nodes)
-      setNodes((nds) => {
-        const node = nds.find(n => n.id === nodeId);
-        if (node) {
-          node.data.label = label;
-        }
-        return [...nds]; // Return new array to trigger save, but nodes keep same reference
-      });
+      // Don't update state during editing - just save to localStorage
+      const node = nodes.find(n => n.id === nodeId);
+      if (node) {
+        node.data.label = label;
+        // Trigger localStorage save without re-render
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ nodes, edges }));
+      }
     };
 
     const handleUpdatePostItText = (e: Event) => {
       const customEvent = e as CustomEvent<{ nodeId: string; text: string }>;
       const { nodeId, text } = customEvent.detail;
       
-      // Directly mutate the data object
-      setNodes((nds) => {
-        const node = nds.find(n => n.id === nodeId);
-        if (node) {
-          node.data.text = text;
-        }
-        return [...nds];
-      });
+      // Don't update state - just save to localStorage
+      const node = nodes.find(n => n.id === nodeId);
+      if (node) {
+        node.data.text = text;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ nodes, edges }));
+      }
     };
 
     const handleUpdateResizableText = (e: Event) => {
       const customEvent = e as CustomEvent<{ nodeId: string; text: string; title: string }>;
       const { nodeId, text, title } = customEvent.detail;
       
-      // Directly mutate the data object
-      setNodes((nds) => {
-        const node = nds.find(n => n.id === nodeId);
-        if (node) {
-          node.data.text = text;
-          node.data.title = title;
-        }
-        return [...nds];
-      });
+      // Don't update state - just save to localStorage
+      const node = nodes.find(n => n.id === nodeId);
+      if (node) {
+        node.data.text = text;
+        node.data.title = title;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ nodes, edges }));
+      }
     };
 
     window.addEventListener('updateNodeLabel', handleUpdateNodeLabel);
