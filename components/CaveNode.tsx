@@ -6,7 +6,6 @@ import { NodeShape } from '../constants';
 const CaveNode: React.FC<NodeProps<CaveNodeData>> = ({ data, selected, id }) => {
   const shape = data.shape || 'process';
   const [isEditing, setIsEditing] = useState(false);
-  const [editValue, setEditValue] = useState(data.label);
   const editRef = useRef<HTMLInputElement>(null);
   const nodeRef = useRef<HTMLDivElement>(null);
 
@@ -32,15 +31,14 @@ const CaveNode: React.FC<NodeProps<CaveNodeData>> = ({ data, selected, id }) => 
   const handleDoubleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     setIsEditing(true);
-    setEditValue(data.label);
   };
 
   // Save changes
   const saveChanges = () => {
-    if (editValue.trim() !== '') {
-      // Update the node data through React Flow's node update mechanism
+    const newLabel = editRef.current?.value.trim() || data.label;
+    if (newLabel !== '' && newLabel !== data.label) {
       const event = new CustomEvent('updateNodeLabel', {
-        detail: { nodeId: id, label: editValue }
+        detail: { nodeId: id, label: newLabel }
       });
       window.dispatchEvent(event);
     }
@@ -49,7 +47,9 @@ const CaveNode: React.FC<NodeProps<CaveNodeData>> = ({ data, selected, id }) => 
 
   // Cancel changes
   const cancelChanges = () => {
-    setEditValue(data.label);
+    if (editRef.current) {
+      editRef.current.value = data.label;
+    }
     setIsEditing(false);
   };
 
@@ -83,7 +83,7 @@ const CaveNode: React.FC<NodeProps<CaveNodeData>> = ({ data, selected, id }) => 
       clearTimeout(timeoutId);
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isEditing, editValue]);
+  }, [isEditing]);
 
   // Focus the input when entering edit mode
   useEffect(() => {
@@ -129,9 +129,9 @@ const CaveNode: React.FC<NodeProps<CaveNodeData>> = ({ data, selected, id }) => 
             <input
               ref={editRef}
               type="text"
-              value={editValue}
-              onChange={(e) => setEditValue(e.target.value)}
+              defaultValue={data.label}
               onKeyDown={handleKeyDown}
+              onBlur={saveChanges}
               onPointerDown={(e) => e.stopPropagation()}
               onMouseDown={(e) => e.stopPropagation()}
               className="text-sm font-jersey tracking-wide leading-tight outline-none bg-[#1A1A1A] px-2 py-1 rounded min-w-[80px] text-center border border-[#FF3333]"
