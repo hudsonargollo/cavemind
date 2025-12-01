@@ -15,15 +15,17 @@ const ResizableTextNode: React.FC<NodeProps> = ({ data, selected, id }) => {
   const [height, setHeight] = useState(Math.max(MIN_HEIGHT, typedData.height || 100));
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const titleInputRef = useRef<HTMLInputElement>(null);
+  const initializedRef = useRef(false);
   
-  // Initialize textarea value once
+  // Initialize textarea value once on mount
   useEffect(() => {
-    if (textareaRef.current && !textareaRef.current.value) {
+    if (textareaRef.current && !initializedRef.current) {
       textareaRef.current.value = typedData.text || '';
+      initializedRef.current = true;
     }
-  }, []);
+  }, [typedData.text]);
 
-  // Update data when dimensions or rotation change
+  // Update dimensions in data
   useEffect(() => {
     typedData.width = width;
     typedData.height = height;
