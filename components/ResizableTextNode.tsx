@@ -15,31 +15,20 @@ const ResizableTextNode: React.FC<NodeProps> = ({ data, selected, id }) => {
   const [height, setHeight] = useState(Math.max(MIN_HEIGHT, typedData.height || 100));
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const titleInputRef = useRef<HTMLInputElement>(null);
-  const initializedRef = useRef(false);
   
-  // Initialize textarea value once on mount
-  useEffect(() => {
-    if (textareaRef.current && !initializedRef.current) {
-      textareaRef.current.value = typedData.text || '';
-      initializedRef.current = true;
-    }
-  }, [typedData.text]);
-
-  // Update dimensions in data
+  // Update dimensions in data directly (no re-render needed)
   useEffect(() => {
     typedData.width = width;
     typedData.height = height;
     typedData.rotation = rotation;
-    typedData.minWidth = MIN_WIDTH;
-    typedData.minHeight = MIN_HEIGHT;
   }, [width, height, rotation, typedData]);
 
   const handleResize = (
-    e: MouseEvent | TouchEvent,
-    direction: string,
+    _e: MouseEvent | TouchEvent,
+    _direction: string,
     ref: HTMLElement,
-    delta: { width: number; height: number },
-    position: { x: number; y: number }
+    _delta: { width: number; height: number },
+    _position: { x: number; y: number }
   ) => {
     const newWidth = Math.max(MIN_WIDTH, ref.offsetWidth);
     const newHeight = Math.max(MIN_HEIGHT, ref.offsetHeight);
@@ -134,13 +123,20 @@ const ResizableTextNode: React.FC<NodeProps> = ({ data, selected, id }) => {
             ref={titleInputRef}
             type="text"
             value={title}
-            onChange={(e) => {
-              setTitle(e.target.value);
-              typedData.title = e.target.value;
+            onChange={(e) => setTitle(e.target.value)}
+            onBlur={() => {
+              const event = new CustomEvent('updateResizableText', {
+                detail: { nodeId: id, text: textareaRef.current?.value || '', title }
+              });
+              window.dispatchEvent(event);
+              setIsEditingTitle(false);
             }}
-            onBlur={() => setIsEditingTitle(false)}
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
+                const event = new CustomEvent('updateResizableText', {
+                  detail: { nodeId: id, text: textareaRef.current?.value || '', title }
+                });
+                window.dispatchEvent(event);
                 setIsEditingTitle(false);
               } else if (e.key === 'Escape') {
                 setTitle(typedData.title || 'NOTA SEM TÍTULO');
@@ -194,14 +190,21 @@ const ResizableTextNode: React.FC<NodeProps> = ({ data, selected, id }) => {
 
       <div className="p-3 overflow-hidden" style={{ height: `calc(100% - 32px)` }}>
         <textarea
+          key={id}
           ref={textareaRef}
           defaultValue={typedData.text || ''}
           className="w-full h-full bg-transparent text-sm font-jersey focus:outline-none resize-none overflow-auto leading-relaxed"
           style={{ color: textColor }}
           placeholder="Enter resizable text..."
           onPointerDown={(e) => e.stopPropagation()}
-          onChange={(e) => {
-            typedData.text = e.target.value;
+          onChange={() => {
+            // Keep it uncontrolled - just let the DOM handle it
+          }}
+          onBlur={(e) => {
+            const event = new CustomEvent('updateResizableText', {
+              detail: { nodeId: id, text: e.target.value, title }
+            });
+            window.dispatchEvent(event);
           }}
         />
       </div>

@@ -210,11 +210,25 @@ function Flow() {
       }));
     };
 
+    const handleUpdateResizableText = (e: Event) => {
+      const customEvent = e as CustomEvent<{ nodeId: string; text: string; title: string }>;
+      const { nodeId, text, title } = customEvent.detail;
+      
+      setNodes((nds) => nds.map((n) => {
+        if (n.id === nodeId) {
+          return { ...n, data: { ...n.data, text, title } };
+        }
+        return n;
+      }));
+    };
+
     window.addEventListener('updateNodeLabel', handleUpdateNodeLabel);
     window.addEventListener('updatePostItText', handleUpdatePostItText);
+    window.addEventListener('updateResizableText', handleUpdateResizableText);
     return () => {
       window.removeEventListener('updateNodeLabel', handleUpdateNodeLabel);
       window.removeEventListener('updatePostItText', handleUpdatePostItText);
+      window.removeEventListener('updateResizableText', handleUpdateResizableText);
     };
   }, [setNodes, takeSnapshot]);
 
