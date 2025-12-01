@@ -7,7 +7,7 @@ const CaveNode: React.FC<NodeProps<CaveNodeData>> = ({ data, selected, id }) => 
   const shape = data.shape || 'process';
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(data.label);
-  const editRef = useRef<HTMLDivElement>(null);
+  const editRef = useRef<HTMLInputElement>(null);
   const nodeRef = useRef<HTMLDivElement>(null);
 
   // Shape-specific styles
@@ -85,16 +85,12 @@ const CaveNode: React.FC<NodeProps<CaveNodeData>> = ({ data, selected, id }) => 
     };
   }, [isEditing, editValue]);
 
-  // Focus the editable div when entering edit mode
+  // Focus the input when entering edit mode
   useEffect(() => {
     if (isEditing && editRef.current) {
-      editRef.current.focus();
-      // Select all text
-      const range = document.createRange();
-      range.selectNodeContents(editRef.current);
-      const selection = window.getSelection();
-      selection?.removeAllRanges();
-      selection?.addRange(range);
+      const input = editRef.current as HTMLInputElement;
+      input.focus();
+      input.select();
     }
   }, [isEditing]);
 
@@ -130,19 +126,17 @@ const CaveNode: React.FC<NodeProps<CaveNodeData>> = ({ data, selected, id }) => 
 
         <div className="flex flex-col gap-1 items-center justify-center w-full h-full" style={contentStyle}>
           {isEditing ? (
-            <div
+            <input
               ref={editRef}
-              contentEditable
-              suppressContentEditableWarning
+              type="text"
+              value={editValue}
+              onChange={(e) => setEditValue(e.target.value)}
               onKeyDown={handleKeyDown}
-              onInput={(e) => setEditValue(e.currentTarget.textContent || '')}
               onPointerDown={(e) => e.stopPropagation()}
               onMouseDown={(e) => e.stopPropagation()}
-              className="text-sm font-jersey tracking-wide leading-tight outline-none bg-[#1A1A1A] px-2 py-1 rounded min-w-[80px] text-center"
+              className="text-sm font-jersey tracking-wide leading-tight outline-none bg-[#1A1A1A] px-2 py-1 rounded min-w-[80px] text-center border border-[#FF3333]"
               style={{ color: textColor }}
-            >
-              {editValue}
-            </div>
+            />
           ) : (
             <div className="text-sm font-jersey tracking-wide leading-tight" style={{ color: textColor }}>
               {data.label}
