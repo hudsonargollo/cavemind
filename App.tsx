@@ -188,38 +188,43 @@ function Flow() {
       const customEvent = e as CustomEvent<{ nodeId: string; label: string }>;
       const { nodeId, label } = customEvent.detail;
       
-      takeSnapshot();
-      setNodes((nds) => nds.map((n) => {
-        if (n.id === nodeId) {
-          return { ...n, data: { ...n.data, label } };
+      // Directly mutate the data object (no new array = no re-render of unchanged nodes)
+      setNodes((nds) => {
+        const node = nds.find(n => n.id === nodeId);
+        if (node) {
+          node.data.label = label;
         }
-        return n;
-      }));
+        return [...nds]; // Return new array to trigger save, but nodes keep same reference
+      });
     };
 
     const handleUpdatePostItText = (e: Event) => {
       const customEvent = e as CustomEvent<{ nodeId: string; text: string }>;
       const { nodeId, text } = customEvent.detail;
       
-      takeSnapshot();
-      setNodes((nds) => nds.map((n) => {
-        if (n.id === nodeId) {
-          return { ...n, data: { ...n.data, text } };
+      // Directly mutate the data object
+      setNodes((nds) => {
+        const node = nds.find(n => n.id === nodeId);
+        if (node) {
+          node.data.text = text;
         }
-        return n;
-      }));
+        return [...nds];
+      });
     };
 
     const handleUpdateResizableText = (e: Event) => {
       const customEvent = e as CustomEvent<{ nodeId: string; text: string; title: string }>;
       const { nodeId, text, title } = customEvent.detail;
       
-      setNodes((nds) => nds.map((n) => {
-        if (n.id === nodeId) {
-          return { ...n, data: { ...n.data, text, title } };
+      // Directly mutate the data object
+      setNodes((nds) => {
+        const node = nds.find(n => n.id === nodeId);
+        if (node) {
+          node.data.text = text;
+          node.data.title = title;
         }
-        return n;
-      }));
+        return [...nds];
+      });
     };
 
     window.addEventListener('updateNodeLabel', handleUpdateNodeLabel);
