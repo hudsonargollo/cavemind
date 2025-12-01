@@ -11,7 +11,6 @@ const ResizableTextNode: React.FC<NodeProps> = ({ data, selected, id }) => {
   const typedData = data as ResizableTextNodeData;
   const { t } = useLanguage();
   const defaultTitle = t('node.untitled');
-  const [title, setTitle] = useState(typedData.title || defaultTitle);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [rotation, setRotation] = useState(typedData.rotation || 0);
   const [width, setWidth] = useState(Math.max(MIN_WIDTH, typedData.width || 200));
@@ -19,6 +18,8 @@ const ResizableTextNode: React.FC<NodeProps> = ({ data, selected, id }) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const titleInputRef = useRef<HTMLInputElement>(null);
   const isEditingRef = useRef(false);
+  
+  const currentTitle = typedData.title || defaultTitle;
   
   // Update dimensions in data directly (no re-render needed)
   useEffect(() => {
@@ -133,24 +134,27 @@ const ResizableTextNode: React.FC<NodeProps> = ({ data, selected, id }) => {
           <input
             ref={titleInputRef}
             type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            defaultValue={currentTitle}
             onBlur={() => {
+              const newTitle = titleInputRef.current?.value || currentTitle;
               const event = new CustomEvent('updateResizableText', {
-                detail: { nodeId: id, text: textareaRef.current?.value || '', title }
+                detail: { nodeId: id, text: textareaRef.current?.value || '', title: newTitle }
               });
               window.dispatchEvent(event);
               setIsEditingTitle(false);
             }}
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
+                const newTitle = titleInputRef.current?.value || currentTitle;
                 const event = new CustomEvent('updateResizableText', {
-                  detail: { nodeId: id, text: textareaRef.current?.value || '', title }
+                  detail: { nodeId: id, text: textareaRef.current?.value || '', title: newTitle }
                 });
                 window.dispatchEvent(event);
                 setIsEditingTitle(false);
               } else if (e.key === 'Escape') {
-                setTitle(typedData.title || defaultTitle);
+                if (titleInputRef.current) {
+                  titleInputRef.current.value = currentTitle;
+                }
                 setIsEditingTitle(false);
               }
             }}
@@ -166,7 +170,7 @@ const ResizableTextNode: React.FC<NodeProps> = ({ data, selected, id }) => {
               setIsEditingTitle(true);
             }}
           >
-            {title}
+            {currentTitle}
           </span>
         )}
         {/* Rotation controls - only visible when selected */}
@@ -217,7 +221,7 @@ const ResizableTextNode: React.FC<NodeProps> = ({ data, selected, id }) => {
           onBlur={(e) => {
             isEditingRef.current = false;
             const event = new CustomEvent('updateResizableText', {
-              detail: { nodeId: id, text: e.target.value, title }
+              detail: { nodeId: id, text: e.target.value, title: currentTitle }
             });
             window.dispatchEvent(event);
           }}
