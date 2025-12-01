@@ -6,32 +6,31 @@ import { ResizableTextNodeData } from '../types';
 const MIN_WIDTH = 50;
 const MIN_HEIGHT = 30;
 
-const ResizableTextNode: React.FC<NodeProps> = ({ data, selected }) => {
+const ResizableTextNode: React.FC<NodeProps> = ({ data, selected, id }) => {
   const typedData = data as ResizableTextNodeData;
-  const [text, setText] = useState(typedData.text || '');
   const [title, setTitle] = useState(typedData.title || 'NOTA SEM TÍTULO');
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [rotation, setRotation] = useState(typedData.rotation || 0);
-  // Enforce minimum dimensions on initial render
   const [width, setWidth] = useState(Math.max(MIN_WIDTH, typedData.width || 200));
   const [height, setHeight] = useState(Math.max(MIN_HEIGHT, typedData.height || 100));
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const titleInputRef = useRef<HTMLInputElement>(null);
-  // Update data only when needed (not during typing)
-  const updateData = () => {
-    typedData.text = text;
-    typedData.title = title;
+  
+  // Initialize textarea value once
+  useEffect(() => {
+    if (textareaRef.current && !textareaRef.current.value) {
+      textareaRef.current.value = typedData.text || '';
+    }
+  }, []);
+
+  // Update data when dimensions or rotation change
+  useEffect(() => {
     typedData.width = width;
     typedData.height = height;
     typedData.rotation = rotation;
     typedData.minWidth = MIN_WIDTH;
     typedData.minHeight = MIN_HEIGHT;
-  };
-
-  // Update data when dimensions or rotation change
-  useEffect(() => {
-    updateData();
-  }, [width, height, rotation]);
+  }, [width, height, rotation, typedData]);
 
   const handleResize = (
     e: MouseEvent | TouchEvent,
@@ -133,14 +132,13 @@ const ResizableTextNode: React.FC<NodeProps> = ({ data, selected }) => {
             ref={titleInputRef}
             type="text"
             value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            onBlur={() => {
-              updateData();
-              setIsEditingTitle(false);
+            onChange={(e) => {
+              setTitle(e.target.value);
+              typedData.title = e.target.value;
             }}
+            onBlur={() => setIsEditingTitle(false)}
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
-                updateData();
                 setIsEditingTitle(false);
               } else if (e.key === 'Escape') {
                 setTitle(typedData.title || 'NOTA SEM TÍTULO');
@@ -195,13 +193,14 @@ const ResizableTextNode: React.FC<NodeProps> = ({ data, selected }) => {
       <div className="p-3 overflow-hidden" style={{ height: `calc(100% - 32px)` }}>
         <textarea
           ref={textareaRef}
+          defaultValue={typedData.text || ''}
           className="w-full h-full bg-transparent text-sm font-jersey focus:outline-none resize-none overflow-auto leading-relaxed"
           style={{ color: textColor }}
-          value={text}
-          onChange={(e) => setText(e.target.value)}
           placeholder="Enter resizable text..."
           onPointerDown={(e) => e.stopPropagation()}
-          onBlur={() => updateData()}
+          onChange={(e) => {
+            typedData.text = e.target.value;
+          }}
         />
       </div>
 
