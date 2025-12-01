@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useToolbarStore } from '../stores/toolbarStore';
+import { useLanguage } from '../contexts/LanguageContext';
 import ToolbarContainer from './ToolbarContainer';
 import ToolbarHandle from './ToolbarHandle';
 import ToolbarContextMenu from './ToolbarContextMenu';
@@ -58,6 +59,7 @@ const AdaptiveDockableToolbar: React.FC<AdaptiveDockableToolbarProps> = ({
 }) => {
   const { user, isAuthenticated, logout } = useAuth();
   const { position, isLocked, isMobile, setPosition, loadPosition, updateLockState, setMobile } = useToolbarStore();
+  const { language, setLanguage } = useLanguage();
   
   const [prompt, setPrompt] = useState('');
   const [expanded, setExpanded] = useState(false);
@@ -269,6 +271,18 @@ const AdaptiveDockableToolbar: React.FC<AdaptiveDockableToolbarProps> = ({
             onLockedDragAttempt={handleDragAttempt}
           />
         </div>
+
+        <div className={`w-[1px] ${isHorizontal ? 'h-6' : 'w-6 h-[1px]'} bg-[#333]`}></div>
+
+        {/* Language Toggle */}
+        <button
+          onClick={() => setLanguage(language === 'pt' ? 'en' : 'pt')}
+          className="w-8 h-8 rounded-full bg-[#333] flex items-center justify-center text-[10px] text-gray-400 hover:text-white hover:bg-[#444] hover:scale-110 focus:outline-none focus:ring-2 focus:ring-[#FF3333] focus:ring-offset-2 focus:ring-offset-[#1A1A1A] transition-all duration-200 font-bold"
+          aria-label={`Switch to ${language === 'pt' ? 'English' : 'Portuguese'}`}
+          title={language === 'pt' ? 'Switch to English' : 'Mudar para Português'}
+        >
+          {language === 'pt' ? 'EN' : 'PT'}
+        </button>
 
         <div className={`w-[1px] ${isHorizontal ? 'h-6' : 'w-6 h-[1px]'} bg-[#333]`}></div>
 

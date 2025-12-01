@@ -2,13 +2,16 @@ import React, { memo, useState, useEffect, useRef } from 'react';
 import { Handle, Position, NodeProps } from '@xyflow/react';
 import { Rnd } from 'react-rnd';
 import { ResizableTextNodeData } from '../types';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const MIN_WIDTH = 50;
 const MIN_HEIGHT = 30;
 
 const ResizableTextNode: React.FC<NodeProps> = ({ data, selected, id }) => {
   const typedData = data as ResizableTextNodeData;
-  const [title, setTitle] = useState(typedData.title || 'NOTA SEM TÍTULO');
+  const { t } = useLanguage();
+  const defaultTitle = t('node.untitled');
+  const [title, setTitle] = useState(typedData.title || defaultTitle);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [rotation, setRotation] = useState(typedData.rotation || 0);
   const [width, setWidth] = useState(Math.max(MIN_WIDTH, typedData.width || 200));
@@ -147,7 +150,7 @@ const ResizableTextNode: React.FC<NodeProps> = ({ data, selected, id }) => {
                 window.dispatchEvent(event);
                 setIsEditingTitle(false);
               } else if (e.key === 'Escape') {
-                setTitle(typedData.title || 'NOTA SEM TÍTULO');
+                setTitle(typedData.title || defaultTitle);
                 setIsEditingTitle(false);
               }
             }}
@@ -203,7 +206,7 @@ const ResizableTextNode: React.FC<NodeProps> = ({ data, selected, id }) => {
           defaultValue={typedData.text || ''}
           className="w-full h-full bg-transparent text-sm font-jersey focus:outline-none resize-none overflow-auto leading-relaxed"
           style={{ color: textColor }}
-          placeholder="Enter resizable text..."
+          placeholder={t('node.placeholder')}
           onPointerDown={(e) => e.stopPropagation()}
           onFocus={() => {
             isEditingRef.current = true;
