@@ -27,13 +27,6 @@ const ResizableTextNode: React.FC<NodeProps> = ({ data, selected, id }) => {
     typedData.height = height;
     typedData.rotation = rotation;
   }, [width, height, rotation, typedData]);
-  
-  // Only update textarea from props when not actively editing
-  useEffect(() => {
-    if (textareaRef.current && !isEditingRef.current && typedData.text !== textareaRef.current.value) {
-      textareaRef.current.value = typedData.text || '';
-    }
-  }, [typedData.text]);
 
   const handleResize = (
     _e: MouseEvent | TouchEvent,
