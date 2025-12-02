@@ -633,14 +633,14 @@ function Flow() {
   }, []);
 
   const commands: Command[] = [
-    { id: 'add-process', label: 'Add Process Node', shortcut: 'P', icon: '◻️', action: () => handleAddNode('caveNode', { shape: 'process', label: 'Process' }) },
-    { id: 'add-decision', label: 'Add Decision Node', shortcut: 'D', icon: '◇', action: () => handleAddNode('caveNode', { shape: 'decision', label: 'Decision?' }) },
-    { id: 'add-note', label: 'Add Note', shortcut: 'N', icon: '📝', action: () => handleAddNode('caveText') },
-    { id: 'add-image', label: 'Add Image', shortcut: 'I', icon: '📷', action: () => handleAddNode('caveImage') },
-    { id: 'spark-ai', label: 'Spark AI Generation', shortcut: '✨', icon: '✦', action: () => alert("Click the Spark button in the dock.") },
-    { id: 'export-png', label: 'Export as PNG', icon: '🖼️', action: handleExportPNG },
-    { id: 'clear', label: 'Clear Canvas', icon: '🗑️', action: handleClear },
-    { id: 'login', label: 'Login / Sign Up', icon: '👤', action: () => setIsLoginOpen(true) },
+    { id: 'add-process', label: 'Adicionar Processo', shortcut: 'P', icon: '◻️', action: () => handleAddNode('caveNode', { shape: 'process', label: 'Processo' }) },
+    { id: 'add-decision', label: 'Adicionar Decisão', shortcut: 'D', icon: '◇', action: () => handleAddNode('caveNode', { shape: 'decision', label: 'Decisão?' }) },
+    { id: 'add-note', label: 'Adicionar Nota', shortcut: 'N', icon: '📝', action: () => handleAddNode('caveText') },
+    { id: 'add-image', label: 'Adicionar Imagem', shortcut: 'I', icon: '📷', action: () => handleAddNode('caveImage') },
+    { id: 'spark-ai', label: 'Geração Spark AI', shortcut: '✨', icon: '✦', action: () => alert("Clique no botão Spark no painel.") },
+    { id: 'export-png', label: 'Exportar como PNG', icon: '🖼️', action: handleExportPNG },
+    { id: 'clear', label: 'Limpar Tela', icon: '🗑️', action: handleClear },
+    { id: 'login', label: 'Login / Cadastrar', icon: '👤', action: () => setIsLoginOpen(true) },
     { id: 'pricing', label: 'View Pricing', icon: '💲', action: () => setIsPricingOpen(true) },
   ];
 

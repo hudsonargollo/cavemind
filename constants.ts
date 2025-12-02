@@ -12,7 +12,7 @@ export const INITIAL_NODES = [
     id: '1',
     type: 'caveNode',
     position: { x: 0, y: 0 },
-    data: { label: 'Start Here', details: 'Right-click for options.', shape: 'process' },
+    data: { label: 'Comece Aqui', details: 'Clique com o botão direito para opções.', shape: 'process' },
   },
 ];
 
