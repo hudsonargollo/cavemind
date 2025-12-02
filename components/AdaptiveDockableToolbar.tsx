@@ -403,39 +403,39 @@ const AdaptiveDockableToolbar: React.FC<AdaptiveDockableToolbarProps> = ({
                 onClick={() => handleAddClick('caveNode')}
                 className="flex items-center gap-2 px-3 py-2 text-xs text-[#E5E5E5] hover:bg-[#333] hover:scale-105 focus:outline-none focus:bg-[#444] focus:ring-2 focus:ring-[#FF3333] rounded w-full whitespace-nowrap transition-all duration-150"
                 role="menuitem"
-                aria-label="Add process node"
+                aria-label="Adicionar processo"
               >
-                <div className="w-3 h-3 border border-[#E5E5E5] rounded-sm" aria-hidden="true"></div> Process
+                <div className="w-3 h-3 border border-[#E5E5E5] rounded-sm" aria-hidden="true"></div> Processo
               </button>
               <button
                 onClick={() => handleAddClick('caveText')}
                 className="flex items-center gap-2 px-3 py-2 text-xs text-[#E5E5E5] hover:bg-[#333] hover:scale-105 focus:outline-none focus:bg-[#444] focus:ring-2 focus:ring-[#FF3333] rounded w-full whitespace-nowrap transition-all duration-150"
                 role="menuitem"
-                aria-label="Add text note"
+                aria-label="Adicionar nota"
               >
-                <span className="font-jersey text-[10px]" aria-hidden="true">TXT</span> Note
+                <span className="font-jersey text-[10px]" aria-hidden="true">TXT</span> Nota
               </button>
               <button
                 onClick={() => handleAddClick('caveImage')}
                 className="flex items-center gap-2 px-3 py-2 text-xs text-[#E5E5E5] hover:bg-[#333] hover:scale-105 focus:outline-none focus:bg-[#444] focus:ring-2 focus:ring-[#FF3333] rounded w-full whitespace-nowrap transition-all duration-150"
                 role="menuitem"
-                aria-label="Add image"
+                aria-label="Adicionar imagem"
               >
-                <span className="text-[10px]" aria-hidden="true">📷</span> Image
+                <span className="text-[10px]" aria-hidden="true">📷</span> Imagem
               </button>
               <button
                 onClick={() => handleAddClick('caveSticker')}
                 className="flex items-center gap-2 px-3 py-2 text-xs text-[#E5E5E5] hover:bg-[#333] hover:scale-105 focus:outline-none focus:bg-[#444] focus:ring-2 focus:ring-[#FF3333] rounded w-full whitespace-nowrap transition-all duration-150"
                 role="menuitem"
-                aria-label="Add sticker"
+                aria-label="Adicionar adesivo"
               >
-                <span className="text-[10px]" aria-hidden="true">✨</span> Sticker
+                <span className="text-[10px]" aria-hidden="true">✨</span> Adesivo
               </button>
               <button
                 onClick={() => handleAddClick('cavePostIt')}
                 className="flex items-center gap-2 px-3 py-2 text-xs text-[#E5E5E5] hover:bg-[#333] hover:scale-105 focus:outline-none focus:bg-[#444] focus:ring-2 focus:ring-[#FF3333] rounded w-full whitespace-nowrap transition-all duration-150"
                 role="menuitem"
-                aria-label="Add post-it note"
+                aria-label="Adicionar post-it"
               >
                 <span className="text-[10px]" aria-hidden="true">📝</span> Post-it
               </button>
