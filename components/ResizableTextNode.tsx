@@ -2,15 +2,13 @@ import React, { memo, useState, useEffect, useRef } from 'react';
 import { Handle, Position, NodeProps } from '@xyflow/react';
 import { Rnd } from 'react-rnd';
 import { ResizableTextNodeData } from '../types';
-import { useLanguage } from '../contexts/LanguageContext';
 
 const MIN_WIDTH = 50;
 const MIN_HEIGHT = 30;
 
 const ResizableTextNodeComponent: React.FC<NodeProps> = ({ data, selected, id }) => {
   const typedData = data as ResizableTextNodeData;
-  const { t } = useLanguage();
-  const defaultTitle = t('node.untitled');
+  const defaultTitle = 'NOTA SEM TÍTULO';
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [rotation, setRotation] = useState(typedData.rotation || 0);
   const [width, setWidth] = useState(Math.max(MIN_WIDTH, typedData.width || 200));
@@ -209,7 +207,7 @@ const ResizableTextNodeComponent: React.FC<NodeProps> = ({ data, selected, id })
           }}
           className="w-full h-full bg-transparent text-sm font-jersey focus:outline-none resize-none overflow-auto leading-relaxed"
           style={{ color: textColor }}
-          placeholder={t('node.placeholder')}
+          placeholder="Digite o texto redimensionável..."
           onPointerDown={(e) => e.stopPropagation()}
           onBlur={(e) => {
             const event = new CustomEvent('updateResizableText', {

@@ -1,7 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
-import { LanguageProvider } from './contexts/LanguageContext';
 
 // Suppress ResizeObserver loop errors which are often benign in React Flow and Resizable components
 const resizeObserverLoopErr = /ResizeObserver loop limit exceeded|ResizeObserver loop completed with undelivered notifications/;
@@ -22,8 +21,4 @@ if (!rootElement) {
 }
 
 const root = ReactDOM.createRoot(rootElement);
-root.render(
-  <LanguageProvider>
-    <App />
-  </LanguageProvider>
-);
+root.render(<App />);
